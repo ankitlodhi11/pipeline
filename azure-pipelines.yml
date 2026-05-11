@@ -1,58 +1,23 @@
 trigger:
-- none
+- main
 
 pool:
   name: aajkerat
 
-stages:
-# =========================
-# Stage 1: Terraform Init
-# =========================
-- stage: Terraform_Init
-  displayName: "Terraform Init Stage"
-  jobs:
-    - job: terraform_init
-      displayName: "Terraform Init Job"
-      steps:
-        # Install Terraform
-        - task: TerraformInstaller@1
-          displayName: "Install Terraform"
-          inputs:
-            terraformVersion: 'latest'
+steps:
 
-        # Terraform Init
-        - task: TerraformTask@5
-          displayName: "Terraform Init"
-          inputs:
-            provider: 'azurerm'
-            command: 'init'
-            backendServiceArm: 'new-hero'
-            backendAzureRmResourceGroupName: 'info-infra'
-            backendAzureRmStorageAccountName: 'storageaccountinfra'
-            backendAzureRmContainerName: 'tfstate'
-            backendAzureRmKey: 'my-app.tfstate'
+- task: TerraformInstaller@1
+  inputs:
+    terraformVersion: latest
 
-# =========================
-# Stage 2: Terraform Plan
-# =========================
-- stage: Terraform_Plan
-  displayName: "Terraform Plan Stage"
-  dependsOn: Terraform_Init
-  condition: succeeded()
-  jobs:
-    - job: terraform_plan
-      displayName: "Terraform Plan Job"
-      steps:
-        # Install Terraform (each stage needs its own install)
-        - task: TerraformInstaller@1
-          displayName: "Install Terraform"
-          inputs:
-            terraformVersion: 'latest'
+- script: |
+    terraform init -reconfigure
+  displayName: Terraform Init
 
-        # Terraform Plan
-        - task: TerraformTask@5
-          displayName: "Terraform Plan"
-          inputs:
-            provider: 'azurerm'
-            command: 'plan'
-            environmentServiceNameAzureRM: 'new-hero'
+- script: |
+    terraform plan
+  displayName: Terraform Plan
+
+- script: |
+    terraform apply -auto-approve
+  displayName: Terraform Apply
