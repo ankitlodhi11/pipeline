@@ -1,0 +1,21 @@
+trigger:
+- main
+
+pool:
+  name: aajkerat
+
+steps:
+
+- task: TerraformInstaller@1
+  displayName: Install Terraform
+  inputs:
+    terraformVersion: latest
+
+- script: terraform init
+  displayName: Terraform Init
+
+- script: terraform plan
+  displayName: Terraform Plan
+
+- script: terraform apply -auto-approve
+  displayName: Terraform Apply
