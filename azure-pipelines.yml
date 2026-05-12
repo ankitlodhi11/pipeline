@@ -5,12 +5,14 @@ pool:
   name: dhurander
 
 stages:
-- stage: Terraform_Init
-  displayName: "Terraform Init"
+
+- stage: Terraform
+  displayName: "Terraform Pipeline"
 
   jobs:
+
   - job: TerraformJob
-    displayName: "Terraform Job"
+    displayName: "Terraform Init Plan Apply"
 
     steps:
 
@@ -30,3 +32,20 @@ stages:
         backendAzureRmStorageAccountName: 'storageaccountinfra'
         backendAzureRmContainerName: 'tfstate'
         backendAzureRmKey: 'my-app.tfstate'
+
+    - task: TerraformTask@5
+      displayName: "Terraform Plan"
+      inputs:
+        provider: 'azurerm'
+        command: 'plan'
+        workingDirectory: '$(System.DefaultWorkingDirectory)/Environment'
+        environmentServiceNameAzureRM: 'new-hero'
+
+    - task: TerraformTask@5
+      displayName: "Terraform Apply"
+      inputs:
+        provider: 'azurerm'
+        command: 'apply'
+        workingDirectory: '$(System.DefaultWorkingDirectory)/Environment'
+        environmentServiceNameAzureRM: 'new-hero'
+        commandOptions: '-auto-approve'
