@@ -4,20 +4,29 @@ trigger:
 pool:
   name: aajkerat
 
-steps:
+stages:
+- stage: Terraform_Init
+  displayName: "Terraform Init"
 
-- task: TerraformInstaller@1
-  inputs:
-    terraformVersion: latest
+  jobs:
+  - job: TerraformJob
+    displayName: "Terraform Job"
 
-- script: |
-    terraform init -reconfigure
-  displayName: Terraform Init
+    steps:
 
-- script: |
-    terraform plan
-  displayName: Terraform Plan
+    - task: TerraformInstaller@1
+      displayName: "Install Terraform"
+      inputs:
+        terraformVersion: 'latest'
 
-- script: |
-    terraform apply -auto-approve
-  displayName: Terraform Apply
+    - task: TerraformTask@5
+      displayName: "Terraform Init"
+      inputs:
+        provider: 'azurerm'
+        command: 'init'
+        workingDirectory: '$(System.DefaultWorkingDirectory)/Environment'
+        backendServiceArm: 'new-hero'
+        backendAzureRmResourceGroupName: 'info-infra'
+        backendAzureRmStorageAccountName: 'storageaccountinfra'
+        backendAzureRmContainerName: 'tfstate'
+        backendAzureRmKey: 'my-app.tfstate'
