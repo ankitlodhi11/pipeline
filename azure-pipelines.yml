@@ -5,16 +5,16 @@ pool:
   name: dhurander
 
 stages:
-
 - stage: Terraform
   displayName: "Terraform Pipeline"
 
   jobs:
-
   - job: TerraformJob
     displayName: "Terraform Init Plan Apply"
 
     steps:
+
+    - checkout: self
 
     - task: TerraformInstaller@1
       displayName: "Install Terraform"
@@ -26,7 +26,7 @@ stages:
       inputs:
         provider: 'azurerm'
         command: 'init'
-        workingDirectory: '$(System.DefaultWorkingDirectory)/Environment'
+        workingDirectory: '$(Build.SourcesDirectory)'
         backendServiceArm: 'new-hero'
         backendAzureRmResourceGroupName: 'info-infra'
         backendAzureRmStorageAccountName: 'storageaccountinfra'
@@ -38,7 +38,7 @@ stages:
       inputs:
         provider: 'azurerm'
         command: 'plan'
-        workingDirectory: '$(System.DefaultWorkingDirectory)/Environment'
+        workingDirectory: '$(Build.SourcesDirectory)'
         environmentServiceNameAzureRM: 'new-hero'
 
     - task: TerraformTask@5
@@ -46,6 +46,6 @@ stages:
       inputs:
         provider: 'azurerm'
         command: 'apply'
-        workingDirectory: '$(System.DefaultWorkingDirectory)/Environment'
+        workingDirectory: '$(Build.SourcesDirectory)'
         environmentServiceNameAzureRM: 'new-hero'
         commandOptions: '-auto-approve'
